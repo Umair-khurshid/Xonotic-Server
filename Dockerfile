@@ -18,7 +18,6 @@ RUN apt-get update && \
     mv /opt/Xonotic/server/server_linux.sh /opt/Xonotic/ && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
 # Set the working directory
 WORKDIR /opt/Xonotic
 
@@ -27,4 +26,3 @@ EXPOSE 26000/udp
 
 # Start the Xonotic server
 CMD ["/opt/Xonotic/server_linux.sh"]
-
