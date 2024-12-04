@@ -1,5 +1,6 @@
 
 # Xonotic Gaming Server 
+[![Docker Image CI](https://github.com/Umair-khurshid/Xonotic-Server/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Umair-khurshid/Xonotic-Server/actions/workflows/docker-image.yml)
 
 This repository contains an updated `Dockerfile` to easily set up and host Xonotic gaming server using Docker. Xonotic is a fast-paced first-person shooter that you can host and play online with friends.
 
