@@ -5,7 +5,7 @@ This repository contains an updated `Dockerfile` to easily set up and host Xonot
 
 ## Requirements
 
-- Make sure Docker is installed on your system
+- Make sure Docker is installed on your system.
   
 ## How to Use
 
