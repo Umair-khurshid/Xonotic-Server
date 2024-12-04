@@ -1,5 +1,5 @@
 # Use Ubuntu as the base image
-FROM ubuntu:25.04
+FROM ubuntu:latest
 
 # Maintainer information
 LABEL maintainer="Umair Khurshid <umairkhurshid@protonmail.com>"
