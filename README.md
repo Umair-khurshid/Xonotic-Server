@@ -1,7 +1,7 @@
 
 # Xonotic Gaming Server 
 
-This repository contains an updated `Dockerfile` to easily set up and deploy Xonotic gaming server using Docker. Xonotic is a fast-paced first-person shooter that you can host and play online with friends.
+This repository contains an updated `Dockerfile` to easily set up and host Xonotic gaming server using Docker. Xonotic is a fast-paced first-person shooter that you can host and play online with friends.
 
 ## Requirements
 
