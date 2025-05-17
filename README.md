@@ -21,7 +21,7 @@ Alternatively, you can also build from the Dockerfile by cloning this repo.
 
 ### Step 2: Run the Docker Container
 
-Once you have the you can run the Xonotic server with this command:
+Once you have pulled the docker file or cloned the repo you can run the Xonotic server with the following command:
 
 ```bash
 docker run -d --name xonotic-server -p 26000:26000/udp -p 26000:26000 umair101/xonotic-server:latest
