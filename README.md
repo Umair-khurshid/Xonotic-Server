@@ -15,7 +15,7 @@ This repository contains an updated `Dockerfile` to easily set up and host Xonot
 Just pull docker image:
 
 ```
-docker pull umair101/xonotic-server:latest
+docker pull umair101/xonotic-server:v1.1
 ```
 Alternatively, you can also build from the Dockerfile by cloning this repo.
 
@@ -24,7 +24,7 @@ Alternatively, you can also build from the Dockerfile by cloning this repo.
 Once you have pulled the docker file or cloned the repo you can run the Xonotic server with the following command:
 
 ```bash
-docker run -d --name xonotic-server -p 26000:26000/udp -p 26000:26000 umair101/xonotic-server:latest
+docker run -d --name xonotic-server -p 26000:26000/udp -p 26000:26000 umair101/xonotic-server:v1.1
 ```
 #### Explanation:
 - `-d` Runs the container in detached mode (background).
