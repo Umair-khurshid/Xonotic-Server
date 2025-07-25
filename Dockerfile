@@ -1,28 +1,36 @@
-# Use Ubuntu as the base image
-FROM ubuntu:latest
+# Download and prepare Xonotic
+FROM ubuntu:24.04 AS builder
 
-# Maintainer information
-LABEL maintainer="Umair Khurshid <umairkhurshid@protonmail.com>"
+LABEL maintainer="Umair Khurshid <umairkhurshid[@]protonmail.com>"
 
-# Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
 ENV XONOTIC_DOWNLOAD_URL=http://dl.xonotic.org/xonotic-0.8.6.zip
 
-# Install dependencies
+# Update and install only required build-time tools
 RUN apt-get update && \
-    apt-get install -y bash curl wget unzip zip libstdc++6 && \
-    wget $XONOTIC_DOWNLOAD_URL -q -O /opt/xonotic.zip && \
+    apt-get upgrade -y && \
+    apt-get install -y curl unzip && \
+    mkdir -p /opt && \
+    curl -sSL "$XONOTIC_DOWNLOAD_URL" -o /opt/xonotic.zip && \
     unzip /opt/xonotic.zip -d /opt && \
-    rm /opt/xonotic.zip && \
     chmod +x /opt/Xonotic/server/server_linux.sh && \
-    cp /opt/Xonotic/server/server.cfg /opt/Xonotic/data/ && \
-    mv /opt/Xonotic/server/server_linux.sh /opt/Xonotic/ && \
+    cp /opt/Xonotic/server/server.cfg /opt/Xonotic/data/
+
+# Runtime Image
+FROM ubuntu:24.04
+
+LABEL maintainer="Umair Khurshid <umairkhurshid@protonmail.com>"
+
+# Update base system to patch CVEs
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y libstdc++6 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Set the working directory
+# Copy Necessary Runtime Files
+COPY --from=builder /opt/Xonotic /opt/Xonotic
+
 WORKDIR /opt/Xonotic
 
-# Expose the default UDP port
+# Expose default UDP port
 EXPOSE 26000/udp
-
-# Start the Xonotic server
-CMD ["/opt/Xonotic/server_linux.sh"]
