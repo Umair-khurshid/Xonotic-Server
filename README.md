@@ -98,5 +98,6 @@ This creates a file called `xonotic-backup.tar.gz` in your current folder.
 
 If something isn't working, make sure Docker is running and you've followed the steps above in order. Still stuck? Open an issue on GitHub.
 
-<hr>
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="umairkhurshid" data-color="#BD5FFF" data-emoji="☕"  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
+---
+
+[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=umairkhurshid&button_colour=BD5FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00)](https://www.buymeacoffee.com/umairkhurshid)
