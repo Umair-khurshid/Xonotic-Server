@@ -1,0 +1,34 @@
+// Xonotic Server Configuration
+// Copy this file to /opt/Xonotic/data/server.cfg or mount it as a volume
+
+// Server identity
+hostname "My Xonotic Server"
+
+// Game settings
+timelimit 15
+fraglimit 0
+capturelimit 8
+
+// Player limits
+bot_number 0
+maxplayers 16
+coop 0
+
+// Password protection (uncomment to enable)
+// password "changeme"
+
+// RCON password for remote administration
+rcon_password "changeme"
+
+// Network
+net_banlist_url ""
+
+// Voting
+vote_allow_spectate 1
+vote_allow_pause 0
+vote_allow_kick 1
+vote_majority 0.5
+
+// Misc
+sv_public 1
+sv_motd "Welcome to my Xonotic server!"
