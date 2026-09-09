@@ -1,13 +1,19 @@
 services:
   xonotic-server:
-    image: umair101/xonotic-server:v1.1
+    build:
+      context: .
+    image: xonotic-server:local
     container_name: xonotic-server
     restart: unless-stopped
     ports:
       - "26000:26000/udp"
-      - "26000:26000"
+    environment:
+      XONOTIC_HOSTNAME: ${XONOTIC_HOSTNAME:-}
+      XONOTIC_JOIN_PASSWORD: ${XONOTIC_JOIN_PASSWORD:-}
+      XONOTIC_RCON_PASSWORD: ${XONOTIC_RCON_PASSWORD:-}
     volumes:
       - xonotic-data:/opt/Xonotic/data
 
 volumes:
   xonotic-data:
+    name: xonotic-data

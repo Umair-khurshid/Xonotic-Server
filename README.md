@@ -1,103 +1,102 @@
-
 # Xonotic Gaming Server
 
-This repository helps you host your own Xonotic game server using Docker. No technical experience needed — just follow the steps below.
+Run a private or public Xonotic server with Docker. The server listens on UDP
+port `26000` and stores its configuration and runtime data in the persistent
+`xonotic-data` Docker volume.
 
----
+## Quick start
 
-## Easy Setup (2 Minutes)
-
-### 1. Install Docker
-
-Download and install Docker from [docker.com](https://www.docker.com/products/docker-desktop/). 
-
-### 2. Start Your Server
-
-**Easiest way:** Download and run the setup script:
+Install [Docker](https://www.docker.com/products/docker-desktop/), then clone
+this repository and run the interactive setup:
 
 ```bash
-curl -O https://raw.githubusercontent.com/Umair-khurshid/Xonotic-Server/main/setup.sh
+git clone https://github.com/Umair-khurshid/Xonotic-Server.git
+cd Xonotic-Server
 bash setup.sh
 ```
 
-**Or** open a terminal (Command Prompt on Windows, Terminal on Mac/Linux) and run:
+The script builds the image from this checked-out source, verifies the pinned
+Xonotic archive checksum, creates the `xonotic-data` volume, and starts the
+server. It will never replace an existing `xonotic-server` container.
+
+To use Docker Compose instead:
 
 ```bash
-docker run -d \
-  --name xonotic-server \
-  --restart unless-stopped \
-  -p 26000:26000/udp \
-  -p 26000:26000 \
-  umair101/xonotic-server:v1.1
+docker compose up -d --build
 ```
 
-That's it. Your server is now running.
+## Connect and network setup
 
-### 3. Connect and Play
-
-Open Xonotic on your computer, press the **`~`** key to open the console, and type:
+Open the Xonotic console with `~` and enter:
 
 ```
 connect your-server-ip:26000
 ```
 
-Replace `your-server-ip` with your IP address.
+For players outside your local network, allow and forward **UDP 26000** from
+your firewall/router to the Docker host. A public address may not be available
+behind CGNAT.
 
----
+## Configure the server
 
-## Stop or Restart
-
-To stop your server:
-
-```bash
-docker stop xonotic-server
-```
-
-To start it again later:
+Copy the environment template and set only the options you need:
 
 ```bash
-docker start xonotic-server
+cp .env.example .env
 ```
 
-To remove it completely:
+- `XONOTIC_HOSTNAME` sets the server-list name.
+- `XONOTIC_JOIN_PASSWORD` restricts players joining the server.
+- `XONOTIC_RCON_PASSWORD` enables remote administration. Keep this long and
+  secret; it is not a player password.
+
+Restart after changing `.env`:
 
 ```bash
-docker rm xonotic-server
+docker compose up -d
 ```
 
----
-
-## Change Server Settings
-
-1. Run this command to edit settings:
-   ```bash
-   docker exec -it xonotic-server nano /opt/Xonotic/data/server.cfg
-   ```
-2. Change things like the server name, game mode, or password.
-3. Press `Ctrl+X`, then `Y`, then `Enter` to save.
-4. Restart the server:
-   ```bash
-   docker restart xonotic-server
-   ```
-
----
-
-## Keep Your Data Safe (Backups)
-
-Your server data (scores, settings, maps) is stored safely. To back it up:
+The container writes these values as an escaped, managed block in
+`/opt/Xonotic/data/server.cfg`. For additional gameplay options, use
+[`server.cfg.example`](server.cfg.example) as a reference and edit the file:
 
 ```bash
-docker run --rm -v xonotic-data:/data -v .:/backup ubuntu tar czf /backup/xonotic-backup.tar.gz -C /data .
+docker exec -it xonotic-server nano /opt/Xonotic/data/server.cfg
+docker restart xonotic-server
 ```
 
-This creates a file called `xonotic-backup.tar.gz` in your current folder.
+## Operations
 
----
+```bash
+docker compose logs -f
+docker compose stop
+docker compose start
+docker compose down
+```
 
-## Need Help?
+`docker compose down` keeps the data volume. To intentionally remove all
+server data, use `docker volume rm xonotic-data` after stopping the server.
 
-If something isn't working, make sure Docker is running and you've followed the steps above in order. Still stuck? Open an issue on GitHub.
+## Backups
 
----
+Create a compressed backup in the current directory:
 
-[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=umairkhurshid&button_colour=BD5FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00)](https://www.buymeacoffee.com/umairkhurshid)
+```bash
+docker run --rm \
+  --mount source=xonotic-data,target=/data,readonly \
+  --mount type=bind,source="$(pwd)",target=/backup \
+  ubuntu:24.04 tar czf /backup/xonotic-backup.tar.gz -C /data .
+```
+
+Restore it only after stopping the server, using the same volume name.
+
+## Verify an image
+
+After building with Compose or `setup.sh`, run:
+
+```bash
+bash tests/smoke.sh
+```
+
+The smoke test requires Docker and confirms the server becomes healthy, its
+game process exists, and UDP port 26000 is published.

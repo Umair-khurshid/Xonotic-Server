@@ -14,11 +14,11 @@ bot_number 0
 maxplayers 16
 coop 0
 
-// Password protection (uncomment to enable)
+// Player password protection (uncomment to enable)
 // password "changeme"
 
-// RCON password for remote administration
-rcon_password "changeme"
+// RCON password for remote administration (uncomment to enable)
+// rcon_password "use-a-long-random-secret"
 
 // Network
 net_banlist_url ""
