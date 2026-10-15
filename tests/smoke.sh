@@ -40,7 +40,7 @@ else
 fi
 
 echo "4. Checking server process..."
-if docker top "$CONTAINER_NAME" -eo comm | awk 'tolower($1) ~ /^(xonotic|darkplaces)/ { found = 1 } END { exit !found }'; then
+if docker top "$CONTAINER_NAME" -eo pid,comm | awk 'tolower($2) ~ /^(xonotic|darkplaces)/ { found = 1 } END { exit !found }'; then
   echo "   PASS: Server process found"
 else
   echo "   FAIL: Server process not found"
@@ -49,7 +49,7 @@ else
 fi
 
 echo "5. Checking published UDP port..."
-if docker port "$CONTAINER_NAME" 26000/udp | grep -Eq '^127\\.0\\.0\\.1:[0-9]+$'; then
+if docker port "$CONTAINER_NAME" 26000/udp | grep -Eq '^127\.0\.0\.1:[0-9]+$'; then
   echo "   PASS: UDP port 26000 is published"
 else
   echo "   FAIL: UDP port 26000 is not published"

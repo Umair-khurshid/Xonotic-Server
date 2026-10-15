@@ -39,7 +39,7 @@ USER xonotic
 EXPOSE 26000/udp
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD ["/bin/sh", "-ec", "for process in /proc/[0-9]*; do [ -r \"$$process/comm\" ] || continue; IFS= read -r name < \"$$process/comm\"; case \"$$name\" in xonotic*|darkplaces*) exit 0 ;; esac; done; exit 1"]
+  CMD ["/bin/sh", "-ec", "for process in /proc/[0-9]*; do [ -r \"$process/comm\" ] || continue; IFS= read -r name < \"$process/comm\"; case \"$name\" in xonotic*|darkplaces*) exit 0 ;; esac; done; exit 1"]
 
 ENTRYPOINT ["/opt/Xonotic/server/entrypoint.sh"]
 CMD ["/opt/Xonotic/server/server_linux.sh"]
