@@ -5,12 +5,21 @@ services:
     image: xonotic-server:local
     container_name: xonotic-server
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
     ports:
       - "26000:26000/udp"
     environment:
       XONOTIC_HOSTNAME: ${XONOTIC_HOSTNAME:-}
       XONOTIC_JOIN_PASSWORD: ${XONOTIC_JOIN_PASSWORD:-}
       XONOTIC_RCON_PASSWORD: ${XONOTIC_RCON_PASSWORD:-}
+      XONOTIC_HOSTNAME_FILE: ${XONOTIC_HOSTNAME_FILE:-}
+      XONOTIC_JOIN_PASSWORD_FILE: ${XONOTIC_JOIN_PASSWORD_FILE:-}
+      XONOTIC_RCON_PASSWORD_FILE: ${XONOTIC_RCON_PASSWORD_FILE:-}
     volumes:
       - xonotic-data:/opt/Xonotic/data
 
