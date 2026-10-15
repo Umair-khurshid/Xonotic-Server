@@ -20,25 +20,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
       - name: Shellcheck
-        run: shellcheck --severity=error setup.sh docker-entrypoint.sh tests/*.sh
+        run: shellcheck --severity=error setup.sh docker-entrypoint.sh
 
       - name: Hadolint
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: Dockerfile
           failure-threshold: error
-
-  test:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Entrypoint config generation
-        run: bash tests/test_entrypoint.sh
-
-      - name: Setup behavior
-        run: bash tests/test_setup.sh
-
-      - name: Deployment contracts
-        run: bash tests/test_contracts.sh

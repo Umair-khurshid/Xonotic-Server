@@ -145,27 +145,6 @@ docker start xonotic-server
 Xonotic 0.8.6 ships a 64-bit x86 (`amd64`) server binary only. The image builds
 on other architectures but the dedicated server will not run on `arm64`/`arm`.
 
-## Tests
-
-Unit tests need only `bash` and coreutils; `test_setup.sh` uses a fake `docker`.
-They do **not** require a running Docker daemon:
-
-```bash
-bash tests/test_entrypoint.sh   # config generation, secret files, migration
-bash tests/test_setup.sh        # setup.sh behavior and health polling
-bash tests/test_contracts.sh    # Dockerfile/compose/docs invariants + syntax
-```
-
-The smoke test requires Docker and an already-built image (`xonotic-server:local`
-by default):
-
-```bash
-bash tests/smoke.sh [image]
-```
-
-It confirms the server becomes healthy, its game process exists, and UDP port
-26000 is published.
-
 ## License
 
 GPL-3.0-or-later. See [LICENSE](LICENSE). Xonotic itself is licensed separately.
