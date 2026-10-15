@@ -35,11 +35,11 @@ join_password_value=$(resolve_setting "${XONOTIC_JOIN_PASSWORD:-}" "${XONOTIC_JO
 rcon_password_value=$(resolve_setting "${XONOTIC_RCON_PASSWORD:-}" "${XONOTIC_RCON_PASSWORD_FILE:-}")
 
 if [ -f "$config" ]; then
-  # Strip both the current managed block and the legacy "CODEX" block written by
-  # earlier releases so upgrades do not leave stale settings behind.
+  # Strip the current managed block plus any legacy variants written by earlier
+  # releases so upgrades do not leave stale settings behind.
   awk '
-    /^\/\/ BEGIN (CODEX )?MANAGED SETTINGS$/ { managed = 1; next }
-    /^\/\/ END (CODEX )?MANAGED SETTINGS$/ { managed = 0; next }
+    /^\/\/ BEGIN .*MANAGED SETTINGS$/ { managed = 1; next }
+    /^\/\/ END .*MANAGED SETTINGS$/ { managed = 0; next }
     !managed { print }
   ' "$config" > "$temporary_config"
 else
