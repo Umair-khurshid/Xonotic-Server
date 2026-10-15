@@ -1,7 +1,5 @@
 FROM ubuntu:24.04 AS builder
 
-LABEL maintainer="Umair Khurshid <umairkhurshid@protonmail.com>"
-
 ENV DEBIAN_FRONTEND=noninteractive
 ARG XONOTIC_DOWNLOAD_URL=https://dl.xonotic.org/xonotic-0.8.6.zip
 ARG XONOTIC_DOWNLOAD_SHA256=50850f8d800e7499722f6ea61e478e96464a375494b5a24da93aa0598cbe964d
@@ -18,10 +16,15 @@ RUN apt-get update && \
 
 FROM ubuntu:24.04
 
-LABEL maintainer="Umair Khurshid <umairkhurshid@protonmail.com>"
+LABEL org.opencontainers.image.authors="Umair Khurshid <umairkhurshid@protonmail.com>" \
+      org.opencontainers.image.title="Xonotic Server" \
+      org.opencontainers.image.description="Dockerized Xonotic dedicated game server" \
+      org.opencontainers.image.source="https://github.com/Umair-khurshid/Xonotic-Server" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      org.opencontainers.image.version="0.8.6"
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends libstdc++6 nano && \
+    apt-get install -y --no-install-recommends libstdc++6 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY --from=builder /opt/Xonotic /opt/Xonotic

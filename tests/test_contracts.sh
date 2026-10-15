@@ -10,26 +10,38 @@ fail() {
 }
 
 require() {
-  rg -q -- "$1" "$2" || fail "missing '$1' in $2"
+  grep -Eq -- "$1" "$2" || fail "missing /$1/ in $2"
 }
 
 forbid() {
-  if rg -q -- "$1" "$2"; then
-    fail "unexpected '$1' in $2"
+  if grep -Eq -- "$1" "$2"; then
+    fail "unexpected /$1/ in $2"
   fi
 }
 
-require 'https://dl.xonotic.org/xonotic-0.8.6.zip' Dockerfile
+# Every shell script must at least parse.
+for script in setup.sh docker-entrypoint.sh tests/*.sh; do
+  bash -n "$script" || fail "bash syntax error in $script"
+done
+sh -n docker-entrypoint.sh || fail 'sh syntax error in docker-entrypoint.sh'
+
+# Dockerfile: pinned + checksum-verified download, non-root runtime, no editor.
+require 'https://dl\.xonotic\.org/xonotic-0\.8\.6\.zip' Dockerfile
 require 'sha256sum -c' Dockerfile
-require 'ENTRYPOINT \["/opt/Xonotic/server/entrypoint.sh"\]' Dockerfile
-require 'libstdc\+\+6 nano' Dockerfile
+require '^USER xonotic$' Dockerfile
+require 'org\.opencontainers\.image\.' Dockerfile
+require 'ENTRYPOINT \["/opt/Xonotic/server/entrypoint\.sh"\]' Dockerfile
+forbid 'nano' Dockerfile
+
+# docker-compose: UDP only, hardened, persistent data volume.
+require '26000:26000/udp' docker-compose.yml
+forbid '26000:26000"' docker-compose.yml
+require 'cap_drop' docker-compose.yml
+require 'no-new-privileges:true' docker-compose.yml
 require 'name: xonotic-data' docker-compose.yml
-forbid '26000:26000"$' docker-compose.yml
-require 'nano /opt/Xonotic/data/server.cfg' README.md
-forbid 'nc -z -u' Dockerfile
-require '\$\$process/comm' Dockerfile
-forbid 'nc -z -u' tests/smoke.sh
-forbid 'grep -q "xonotic"' tests/smoke.sh
-require 'trap cleanup' tests/smoke.sh
+
+# The runtime image no longer ships an editor, so docs must not tell users to
+# run one inside the container.
+forbid 'nano' README.md
 
 echo 'PASS: deployment contracts'

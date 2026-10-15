@@ -32,6 +32,7 @@ case "${1:-}" in
     fi
     exit 1
     ;;
+  inspect) printf 'healthy\n'; exit 0 ;;
   run) printf 'container-id\n'; exit 0 ;;
 esac
 EOF
@@ -65,6 +66,11 @@ if grep -F -- '-p 26000:26000 ' "$WORK_DIR/run-0/docker.log" >/dev/null; then
 fi
 if grep -F -- 'admin-secret' "$WORK_DIR/run-0/stdout" >/dev/null; then
   fail 'setup must not print the RCON password'
+fi
+
+# setup.sh must wait for the Docker health check instead of a fixed sleep.
+if ! grep -F -- 'inspect --format' "$WORK_DIR/run-0/docker.log" >/dev/null; then
+  fail 'setup must poll the container health status'
 fi
 
 if run_setup 1; then

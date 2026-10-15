@@ -76,8 +76,23 @@ docker run -d \
   "$IMAGE" \
   > /dev/null
 
-echo -e "${GREEN}[3/4] Waiting for server to start...${NC}"
-sleep 10
+echo -e "${GREEN}[3/4] Waiting for the server to become healthy...${NC}"
+
+health="unknown"
+attempt=0
+while [ "$attempt" -lt 30 ]; do
+  health=$(docker inspect --format '{{.State.Health.Status}}' xonotic-server 2>/dev/null || echo unknown)
+  if [ "$health" = "healthy" ]; then
+    break
+  fi
+  attempt=$((attempt + 1))
+  sleep 1
+done
+
+if [ "$health" != "healthy" ]; then
+  echo -e "${YELLOW}Warning: server did not report healthy within 30s. Recent logs:${NC}" >&2
+  docker logs xonotic-server >&2 || true
+fi
 
 echo -e "${GREEN}[4/4] Done!${NC}"
 echo ""

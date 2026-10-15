@@ -1,5 +1,7 @@
 # Xonotic Gaming Server
 
+[![CI](https://github.com/Umair-khurshid/Xonotic-Server/actions/workflows/ci.yml/badge.svg)](https://github.com/Umair-khurshid/Xonotic-Server/actions/workflows/ci.yml)
+
 Run a private or public Xonotic server with Docker. The server listens on UDP
 port `26000` and stores its configuration and runtime data in the persistent
 `xonotic-data` Docker volume.
@@ -16,8 +18,9 @@ bash setup.sh
 ```
 
 The script builds the image from this checked-out source, verifies the pinned
-Xonotic archive checksum, creates the `xonotic-data` volume, and starts the
-server. It will never replace an existing `xonotic-server` container.
+Xonotic archive checksum, creates the `xonotic-data` volume, starts the server,
+and waits for its health check to pass. It will never replace an existing
+`xonotic-server` container.
 
 To use Docker Compose instead:
 
@@ -56,14 +59,42 @@ Restart after changing `.env`:
 docker compose up -d
 ```
 
+### Keeping passwords out of the environment
+
+Inline `XONOTIC_*` values are visible to anyone who can run `docker inspect` or
+`ps`. To avoid that, point the `*_FILE` variables at a mounted secret instead.
+For example, with Docker Compose:
+
+```yaml
+secrets:
+  rcon_password:
+    file: ./rcon_password.txt
+
+services:
+  xonotic-server:
+    environment:
+      XONOTIC_RCON_PASSWORD_FILE: /run/secrets/rcon_password
+    secrets:
+      - rcon_password
+```
+
+The file contents take precedence over the inline value, and a missing or
+unreadable file makes the container fail fast rather than start unconfigured.
+
 The container writes these values as an escaped, managed block in
 `/opt/Xonotic/data/server.cfg`. For additional gameplay options, use
-[`server.cfg.example`](server.cfg.example) as a reference and edit the file:
+[`server.cfg.example`](server.cfg.example) as a reference and edit the file
+from the host (the image does not ship an editor):
 
 ```bash
-docker exec -it xonotic-server nano /opt/Xonotic/data/server.cfg
+docker cp xonotic-server:/opt/Xonotic/data/server.cfg ./server.cfg
+# edit ./server.cfg with your preferred local editor
+docker cp ./server.cfg xonotic-server:/opt/Xonotic/data/server.cfg
 docker restart xonotic-server
 ```
+
+Settings inside the `// BEGIN MANAGED SETTINGS` block are regenerated from the
+environment on every start; edit them there instead of in the file.
 
 ## Operations
 
@@ -88,15 +119,53 @@ docker run --rm \
   ubuntu:24.04 tar czf /backup/xonotic-backup.tar.gz -C /data .
 ```
 
-Restore it only after stopping the server, using the same volume name.
-
-## Verify an image
-
-After building with Compose or `setup.sh`, run:
+Restore it only after stopping the server, using the same volume name:
 
 ```bash
-bash tests/smoke.sh
+docker stop xonotic-server
+docker run --rm \
+  --mount source=xonotic-data,target=/data \
+  --mount type=bind,source="$(pwd)",target=/backup,readonly \
+  ubuntu:24.04 sh -c 'rm -rf /data/* && tar xzf /backup/xonotic-backup.tar.gz -C /data'
+docker start xonotic-server
 ```
 
-The smoke test requires Docker and confirms the server becomes healthy, its
-game process exists, and UDP port 26000 is published.
+## Security notes
+
+- The container runs as the unprivileged `xonotic` user.
+- `docker-compose.yml` drops all Linux capabilities, sets
+  `no-new-privileges`, and mounts `/tmp` as `tmpfs`. If you start the container
+  with a raw `docker run`, add `--cap-drop=ALL --security-opt
+  no-new-privileges` yourself.
+- The Xonotic archive is downloaded over HTTPS and verified against a pinned
+  SHA-256 checksum during the build.
+
+## Platform support
+
+Xonotic 0.8.6 ships a 64-bit x86 (`amd64`) server binary only. The image builds
+on other architectures but the dedicated server will not run on `arm64`/`arm`.
+
+## Tests
+
+Unit tests need only `bash` and coreutils; `test_setup.sh` uses a fake `docker`.
+They do **not** require a running Docker daemon:
+
+```bash
+bash tests/test_entrypoint.sh   # config generation, secret files, migration
+bash tests/test_setup.sh        # setup.sh behavior and health polling
+bash tests/test_contracts.sh    # Dockerfile/compose/docs invariants + syntax
+```
+
+The smoke test requires Docker and an already-built image (`xonotic-server:local`
+by default):
+
+```bash
+bash tests/smoke.sh [image]
+```
+
+It confirms the server becomes healthy, its game process exists, and UDP port
+26000 is published.
+
+## License
+
+GPL-3.0-or-later. See [LICENSE](LICENSE). Xonotic itself is licensed separately.
